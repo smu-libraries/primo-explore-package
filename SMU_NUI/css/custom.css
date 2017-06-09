@@ -175,4 +175,17 @@ prm-favorites-tool-bar md-toolbar div.md-toolbar-tools span.toolbar-title {
   font-weight: 600;
 }
 
+/* Test external content embedding. */
+#embedded-content-ul,
+#embedded-content-frame,
+#embedded-content-div {
+  list-style-type: none;
+  border: thin solid #cccccc;
+  width: 100%;
+  height: 200px;
+  overflow-y: scroll;
+  margin: 0;
+  padding: 8px;
+}
+
 /* custom.css */

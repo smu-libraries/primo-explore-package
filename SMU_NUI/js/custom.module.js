@@ -20,3 +20,19 @@ app.component('prmLogoAfter', {
   controller: 'prmLogoAfterController',
   template: '<div class="product-logo product-logo-custom" layout="row" layout-align="start center" layout-fill id="banner" tabindex="0" role="banner"><a href="https://library.smu.edu.sg"><img class="logo-image" alt="{{::(\'nui.header.LogoAlt\'|translate)}}" ng-src="{{$ctrl.getIconLink()}}" /></a></div>'
 });
+
+/**
+ * Test external content embedding.
+ */
+app.controller('embeddedContentController', ['$scope', '$sce', '$http', function ($scope, $sce, $http) {
+  var resource_url = 'https://lti.library.smu.edu.sg/poc_spaces_feedback';
+  var trusted_url = $sce.trustAsResourceUrl('https://lti.library.smu.edu.sg/poc_spaces_feedback');
+  $scope.embeddedContentSrc = trusted_url;
+  $scope.embeddedContentInclude = trusted_url;
+  $scope.posts = [];
+  $http.get(resource_url).then(function (response) {
+    $scope.posts = response.data;
+  }).catch(function (error) {
+    console.log(error);
+  });
+}]);
