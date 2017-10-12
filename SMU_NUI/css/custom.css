@@ -280,4 +280,17 @@ md-card-content {
   min-height: 1px;
 }
 
+/* Add Browzine integration. */
+.browzine-icon {
+  vertical-align: text-top;
+}
+
+a.browzine-link:hover {
+  background-color: transparent;
+}
+
+.md-button.arrow-link-button span.button-content.browzine-text {
+  color: #0f7d00;
+}
+
 /* custom.css */

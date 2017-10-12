@@ -2,7 +2,17 @@
 ga('create', 'UA-65742450-2', 'auto');
 ga('send', 'pageview');
 
-var app = angular.module('viewCustom', ['angularLoad']);
+var app = angular.module('viewCustom', ['angularLoad'])
+  /**
+   * Add BrowZine integration.
+   * Refer to https://thirdiron.atlassian.net/wiki/spaces/BrowZineAPIDocs/pages/79200260/Ex+Libris+Primo+Integration
+   */
+  .constant('nodeserver', "https://apiconnector.thirdiron.com/v1/libraries/646")
+  .config(['$sceDelegateProvider', 'nodeserver', function ($sceDelegateProvider, nodeserver) {
+    var urlWhitelist = $sceDelegateProvider.resourceUrlWhitelist();
+    urlWhitelist.push(nodeserver + '**');
+    $sceDelegateProvider.resourceUrlWhitelist(urlWhitelist);
+  }]);
 
 /**
  * Link library logo to the library homepage.
@@ -120,7 +130,7 @@ app.component('prmViewOnlineAfter', {
 /**
  * Hide hyperlink in brief results when there is no full text.
  */
-app.controller('prmSearchResultAvailabilityLineAfterController', [function () {
+app.controller('prmSearchResultAvailabilityLineAfterController', ['$scope', '$http', 'nodeserver', function ($scope, $http, nodeserver) {
   var vm = this;
 
   Object.defineProperty(vm, 'availabilityLineIcons', { get() { return vm.parentCtrl.availabilityLineIcons; }});
@@ -162,10 +172,36 @@ app.controller('prmSearchResultAvailabilityLineAfterController', [function () {
   vm.hasNoFullText = function () {
     return vm.parentCtrl.displayedAvailability[0] === 'no_fulltext';
   };
+
+  /**
+   * Add BrowZine integration.
+   * Refer to https://thirdiron.atlassian.net/wiki/spaces/BrowZineAPIDocs/pages/79200260/Ex+Libris+Primo+Integration
+   */
+  $scope.book_icon = "https://s3.amazonaws.com/thirdiron-assets/images/integrations/browzine_open_book_icon.png";
+  if (vm.parentCtrl.result.pnx.addata.doi && vm.parentCtrl.result.pnx.display.type[0] == 'article') {
+    vm.doi = vm.parentCtrl.result.pnx.addata.doi[0] || '';
+    var articleURL = nodeserver + "/articles?DOI=" + vm.doi;
+    $http.jsonp(articleURL, { jsonpCallbackParam: 'callback' })
+      .then(function (response) {
+        $scope.article = response.data;
+      }, function (error) {
+        console.log(error);
+      });
+  }
+  if (vm.parentCtrl.result.pnx.addata.issn && vm.parentCtrl.result.pnx.display.type[0] == 'journal') {
+    vm.issn = vm.parentCtrl.result.pnx.addata.issn[0].replace("-", "") || '';
+    var journalURL = nodeserver + "/journals?ISSN=" + vm.issn;
+    $http.jsonp(journalURL, { jsonpCallbackParam: 'callback' })
+      .then(function (response) {
+        $scope.journal = response.data;
+      }, function (error) {
+        console.log(error);
+      });
+  }
 }]);
 
 app.component('prmSearchResultAvailabilityLineAfter', {
   bindings: { parentCtrl: '<' },
   controller: 'prmSearchResultAvailabilityLineAfterController',
-  template: '<div ng-repeat="availability in $ctrl.displayedAvailability track by $index" layout="row" layout-align="start start"><prm-icon ng-if="$ctrl.isOnline($index,availability) && !$ctrl.hasNoFullText()" availability-type icon-type="{{::$ctrl.availabilityLineIcons.onlineMaterial.type}}" svg-icon-set="{{::$ctrl.availabilityLineIcons.onlineMaterial.iconSet}}" icon-definition="{{::$ctrl.availabilityLineIcons.onlineMaterial.icon}}"></prm-icon><prm-icon ng-if="$ctrl.isPhysical($index,availability)" availability-type icon-type="{{::$ctrl.availabilityLineIcons.physicalMaterial.type}}" svg-icon-set="{{::$ctrl.availabilityLineIcons.physicalMaterial.iconSet}}" icon-definition="{{::$ctrl.availabilityLineIcons.physicalMaterial.icon}}"></prm-icon><md-button prm-brief-internal-button-marker ng-if="!$ctrl.hasNoFullText()" ng-click="$ctrl.handleAvailability($index, $event);$event.preventDefault();" class="neutralized-button arrow-link-button" title="{{::$ctrl.getTranslatedLine(\'delivery.code.\'+availability)}}"><span class="button-content"><span class="availability-status {{availability}}" translate="delivery.code.{{availability}}" translate-values="$ctrl.getPlaceHolders($ctrl.result)" translate-compile></span><span ng-if="$ctrl.showDisplayOtherLocations() && $ctrl.isPhysical($index)" translate="delivery.and.other.locations"></span><prm-icon ng-if="$ctrl.isDirectLink($index)" external-link icon-type="{{$ctrl.availabilityLineIcons.externalLink.type}}" svg-icon-set="{{$ctrl.availabilityLineIcons.externalLink.iconSet}}" icon-definition="{{$ctrl.availabilityLineIcons.externalLink.icon}}" aria-label="{{\'nui.externalLink\' | translate}}"></prm-icon></span><prm-spinner class="inline-loader display-inline dark-on-light half-transparent" ng-if="$ctrl.result.rtaInProgress"></prm-spinner><prm-icon link-arrow icon-type="{{::$ctrl.availabilityLineIcons.arrowRight.type}}" svg-icon-set="{{::$ctrl.availabilityLineIcons.arrowRight.iconSet}}" icon-definition="{{::$ctrl.availabilityLineIcons.arrowRight.icon}}"></prm-icon></md-button><md-button ng-if="$ctrl.hasNoFullText()" class="neutralized-button has-no-full-text"><span class="availability-status {{availability}}" translate="delivery.code.{{availability}}" translate-values="$ctrl.getPlaceHolders($ctrl.result)" translate-compile></span></md-button></div>'
+  template: '<div ng-repeat="availability in $ctrl.displayedAvailability track by $index" layout="row" layout-align="start start"><prm-icon ng-if="$ctrl.isOnline($index,availability) && !$ctrl.hasNoFullText()" availability-type icon-type="{{::$ctrl.availabilityLineIcons.onlineMaterial.type}}" svg-icon-set="{{::$ctrl.availabilityLineIcons.onlineMaterial.iconSet}}" icon-definition="{{::$ctrl.availabilityLineIcons.onlineMaterial.icon}}"></prm-icon><prm-icon ng-if="$ctrl.isPhysical($index,availability)" availability-type icon-type="{{::$ctrl.availabilityLineIcons.physicalMaterial.type}}" svg-icon-set="{{::$ctrl.availabilityLineIcons.physicalMaterial.iconSet}}" icon-definition="{{::$ctrl.availabilityLineIcons.physicalMaterial.icon}}"></prm-icon><md-button prm-brief-internal-button-marker ng-if="!$ctrl.hasNoFullText()" ng-click="$ctrl.handleAvailability($index, $event);$event.preventDefault();" class="neutralized-button arrow-link-button" title="{{::$ctrl.getTranslatedLine(\'delivery.code.\'+availability)}}"><span class="button-content"><span class="availability-status {{availability}}" translate="delivery.code.{{availability}}" translate-values="$ctrl.getPlaceHolders($ctrl.result)" translate-compile></span><span ng-if="$ctrl.showDisplayOtherLocations() && $ctrl.isPhysical($index)" translate="delivery.and.other.locations"></span><prm-icon ng-if="$ctrl.isDirectLink($index)" external-link icon-type="{{$ctrl.availabilityLineIcons.externalLink.type}}" svg-icon-set="{{$ctrl.availabilityLineIcons.externalLink.iconSet}}" icon-definition="{{$ctrl.availabilityLineIcons.externalLink.icon}}" aria-label="{{\'nui.externalLink\' | translate}}"></prm-icon></span><prm-spinner class="inline-loader display-inline dark-on-light half-transparent" ng-if="$ctrl.result.rtaInProgress"></prm-spinner><prm-icon link-arrow icon-type="{{::$ctrl.availabilityLineIcons.arrowRight.type}}" svg-icon-set="{{::$ctrl.availabilityLineIcons.arrowRight.iconSet}}" icon-definition="{{::$ctrl.availabilityLineIcons.arrowRight.icon}}"></prm-icon></md-button><md-button ng-if="$ctrl.hasNoFullText()" class="neutralized-button has-no-full-text"><span class="availability-status {{availability}}" translate="delivery.code.{{availability}}" translate-values="$ctrl.getPlaceHolders($ctrl.result)" translate-compile></span></md-button></div><div ng-if="article.data.browzineWebLink"><prm-icon class="browzine-icon" availability-type icon-type="{{::$ctrl.availabilityLineIcons.onlineMaterial.type}}" svg-icon-set="{{::$ctrl.availabilityLineIcons.onlineMaterial.iconSet}}" icon-definition="{{::$ctrl.availabilityLineIcons.onlineMaterial.icon}}"></prm-icon><a class="browzine-link" href="{{ article.data.browzineWebLink }}" target="_blank" title="View via BrowZine"><md-button class="neutralized-button arrow-link-button"><span class="button-content browzine-text">Journal issue available (BrowZine)<prm-icon external-link icon-type="{{$ctrl.availabilityLineIcons.externalLink.type}}" svg-icon-set="{{$ctrl.availabilityLineIcons.externalLink.iconSet}}" icon-definition="{{$ctrl.availabilityLineIcons.externalLink.icon}}" aria-label="{{\'nui.externalLink\' | translate}}"></prm-icon></span><prm-icon link-arrow icon-type="{{::$ctrl.availabilityLineIcons.arrowRight.type}}" svg-icon-set="{{::$ctrl.availabilityLineIcons.arrowRight.iconSet}}" icon-definition="{{::$ctrl.availabilityLineIcons.arrowRight.icon}}"></prm-icon></md-button></a></div><div ng-if="journal.data[0].browzineWebLink"><prm-icon class="browzine-icon" availability-type icon-type="{{::$ctrl.availabilityLineIcons.onlineMaterial.type}}" svg-icon-set="{{::$ctrl.availabilityLineIcons.onlineMaterial.iconSet}}" icon-definition="{{::$ctrl.availabilityLineIcons.onlineMaterial.icon}}"></prm-icon><a class="browzine-link" href="{{ journal.data[0].browzineWebLink }}" target="_blank" title="View via BrowZine"><md-button class="neutralized-button arrow-link-button"><span class="button-content browzine-text">Full text available (BrowZine)<prm-icon external-link icon-type="{{$ctrl.availabilityLineIcons.externalLink.type}}" svg-icon-set="{{$ctrl.availabilityLineIcons.externalLink.iconSet}}" icon-definition="{{$ctrl.availabilityLineIcons.externalLink.icon}}" aria-label="{{\'nui.externalLink\' | translate}}"></prm-icon></span><prm-icon link-arrow icon-type="{{::$ctrl.availabilityLineIcons.arrowRight.type}}" svg-icon-set="{{::$ctrl.availabilityLineIcons.arrowRight.iconSet}}" icon-definition="{{::$ctrl.availabilityLineIcons.arrowRight.icon}}"></prm-icon></md-button></a></div>'
 });
