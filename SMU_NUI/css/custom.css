@@ -292,4 +292,34 @@ md-card-content {
   min-height: 1px;
 }
 
+/* rb start - 18 July 2019 */
+  #searchWithinInput {
+   color: white;
+   border-color: white;
+   }/* search box color*/
+
+  #magnifying-glass{
+   color: white;
+   border-color: white;
+   }  /*magnifying glass color*/
+
+  #searchWithinInput::placeholder  { /*All others */
+   color: white;
+  }/* search box color*/
+
+  #searchWithinInput::-webkit-input-placeholder { /* Edge */
+   color: white;
+  }/* search box color*/
+
+  #searchWithinInput:-ms-input-placeholder { /* Internet Explorer */
+   color: white;
+  }/* search box color*/
+
+  .md-input::placeholder { color: white; } /*placeholder color*/
+  .search-button-text { color: white; } /*search button before you type any*/
+  .md-button { color: white; } /* for X button */
+  .margin-right-small { color: grey; }
+  .md-icon-button { color: grey; }
+/* # rb end - 18 July 2019 */
+
 /* custom.css */

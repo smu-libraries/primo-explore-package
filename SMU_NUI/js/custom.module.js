@@ -21,7 +21,7 @@ ga('send', 'pageview');
  */
 (function() {
   var lc = document.createElement('script'); lc.type = 'text/javascript'; lc.async = 'true';
-  lc.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'v2.libanswers.com/load_chat.php?hash=aa0a509ee211a898f337227a67f8b5ec';
+  lc.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'region-au.libanswers.com/load_chat.php?hash=aa0a509ee211a898f337227a67f8b5ec';
   var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(lc, s);
 })();
 
@@ -47,15 +47,15 @@ app.component('prmLogoAfter', {
 /**
  * Hide mobile keyboard when user uses Enter instead of tapping the search button.
  */
-app.directive('ngSubmit', function () {
-  return function (scope, element, attr) {
-    var inputs = element.find('input');
-    element.on('submit', function () {
-      inputs[0].focus();
-      inputs[0].blur();  /** input loses focus */
-    });
-  };
-});
+// app.directive('ngSubmit', function () {
+//   return function (scope, element, attr) {
+//     var inputs = element.find('input');
+//     element.on('submit', function () {
+//       inputs[0].focus();
+//       inputs[0].blur();  /** input loses focus */
+//     });
+//   };
+// });
 
 /**
  * Enable password option for specific patron groups.
