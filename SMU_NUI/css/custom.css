@@ -292,7 +292,7 @@ md-card-content {
   min-height: 1px;
 }
 
-/* rb start - 18 July 2019 */
+/* rb start -  14 Aug 2019 */
   #searchWithinInput {
    color: white;
    border-color: white;
@@ -303,23 +303,27 @@ md-card-content {
    border-color: white;
    }  /*magnifying glass color*/
 
-  #searchWithinInput::placeholder  { /*All others */
-   color: white;
-  }/* search box color*/
-
-  #searchWithinInput::-webkit-input-placeholder { /* Edge */
-   color: white;
-  }/* search box color*/
-
-  #searchWithinInput:-ms-input-placeholder { /* Internet Explorer */
-   color: white;
-  }/* search box color*/
-
+  #searchWithinInput::placeholder  { color: white;  }/* search box color search box color*/
+  #searchWithinInput::-webkit-input-placeholder { color: white; } /* Edge search box color*/
+  #searchWithinInput:-ms-input-placeholder { color: white;  } /* Internet Explorer search box color*/
+  /* #_md{ color: black; } */
   .md-input::placeholder { color: white; } /*placeholder color*/
   .search-button-text { color: white; } /*search button before you type any*/
-  .md-button { color: white; } /* for X button */
+  .md-button { color: grey; } /* for X button */
   .margin-right-small { color: grey; }
   .md-icon-button { color: grey; }
-/* # rb end - 18 July 2019 */
+  .menu-arrow { color: #102b72; }
+  .hide-xs { color: black; }
+
+  prm-user-area-expandable .md-button.button-with-menu-arrow:not(.button-with-icon) {
+      min-width: 0;
+      padding: 0 16px;
+      color: #102b72;
+  }
+
+  .prm-secondary-color.prm-hue4, prm-search-bookmark-filter .prm-hue4.md-button, prm-topbar .prm-hue4.top-nav-bar, prm-user-area-expandable .md-button.user-button {
+    color: #102b72;
+}
+/* # rb end - 14 Aug 2019 */
 
 /* custom.css */
